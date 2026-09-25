@@ -85,3 +85,22 @@ else:
     print("Revisa la ruta de CelebA, no se encontró la carpeta extraída.")
 
 print("Carpetas creadas con éxito. Ahora debes subir tus fotos a la carpeta 'mi_rostro'.")
+
+
+# Paso 5: Entrenar el modelo
+# Conectar el generador de datos con la carpeta que contiene las dos categorías
+train_generator = datagen.flow_from_directory(
+    '/content/dataset_rostros',
+    target_size=(224, 224), # Mismo tamaño de entrada de la red convolucional
+    batch_size=16,
+    class_mode='binary' # Clasificación binaria: es tu rostro o no lo es
+)
+
+print("Iniciando el entrenamiento...")
+# Entrenar el modelo con las capas pre-entrenadas congeladas
+historial = modelo_transfer.fit(
+    train_generator,
+    epochs=10, # Número de pasadas completas sobre los datos
+    steps_per_epoch=len(train_generator)
+)
+print("¡Entrenamiento finalizado!")
