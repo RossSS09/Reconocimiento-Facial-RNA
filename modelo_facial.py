@@ -58,3 +58,30 @@ modelo_transfer.compile(optimizer='adam', loss='binary_crossentropy', metrics=['
 
 # Verificar la arquitectura final y comprobar que los parámetros pre-entrenados no son entrenables (Non-trainable params)
 modelo_transfer.summary()
+
+
+import os
+import shutil
+
+# Crear estructura de carpetas para las dos categorías
+base_dir = '/content/dataset_rostros'
+mi_rostro_dir = os.path.join(base_dir, 'mi_rostro')
+otros_rostros_dir = os.path.join(base_dir, 'otros_rostros')
+
+os.makedirs(mi_rostro_dir, exist_ok=True)
+os.makedirs(otros_rostros_dir, exist_ok=True)
+
+# Mover 100 imágenes aleatorias de CelebA a la carpeta de 'otros_rostros' para equilibrar los datos
+celeba_source_dir = '/content/img_align_celeba/img_align_celeba'
+
+if os.path.exists(celeba_source_dir):
+    imagenes_celeba = os.listdir(celeba_source_dir)[:100] # Tomamos 100 fotos para el ejemplo
+    for img_name in imagenes_celeba:
+        src = os.path.join(celeba_source_dir, img_name)
+        dst = os.path.join(otros_rostros_dir, img_name)
+        shutil.copy(src, dst)
+    print("Carpeta 'otros_rostros' lista con imágenes de CelebA.")
+else:
+    print("Revisa la ruta de CelebA, no se encontró la carpeta extraída.")
+
+print("Carpetas creadas con éxito. Ahora debes subir tus fotos a la carpeta 'mi_rostro'.")
