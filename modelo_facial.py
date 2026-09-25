@@ -35,6 +35,12 @@ modelo_base = Sequential([
 modelo_base.summary()
 
 
+# 1. Compilar y entrenar la red base para predecir los 40 atributos de CelebA
+modelo_base.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+print("Entrenando red convolucional con CelebA...")
+
+
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Flatten
 
@@ -125,3 +131,22 @@ historial_refinamiento = modelo_transfer.fit(
     epochs=5, 
     steps_per_epoch=len(train_generator)
 )
+
+
+# Prueba de Desbloqueo Facial
+import numpy as np
+from tensorflow.keras.preprocessing import image
+
+def probar_desbloqueo(ruta_imagen):
+    img = image.load_img(ruta_imagen, target_size=(224, 224))
+    img_array = image.img_to_array(img)
+    img_array = np.expand_dims(img_array, axis=0) / 255.0 # Normalización
+    
+    prediccion = modelo_transfer.predict(img_array)
+    
+    if prediccion[0][0] > 0.5:
+        print(f"Desbloqueo exitoso. Rostro detectado con confianza: {prediccion[0][0]:.4f}")
+    else:
+        print(f"Acceso denegado. Confianza: {prediccion[0][0]:.4f}")
+
+probar_desbloqueo('/content/dataset_rostros/mi_rostro/foto_prueba.jpeg')
