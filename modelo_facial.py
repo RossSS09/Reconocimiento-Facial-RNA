@@ -104,3 +104,24 @@ historial = modelo_transfer.fit(
     steps_per_epoch=len(train_generator)
 )
 print("¡Entrenamiento finalizado!")
+
+
+print("Iniciando fase de refinamiento (fine-tuning profundo)...")
+
+# Descongelar las últimas capas del modelo para el refinamiento
+for capa in modelo_transfer.layers[-4:]:
+    capa.trainable = True
+
+# Recompilar con un optimizador más suave (tasa de aprendizaje baja) para ajustes finos
+modelo_transfer.compile(
+    optimizer=tf.keras.optimizers.Adam(learning_rate=1e-5), 
+    loss='binary_crossentropy', 
+    metrics=['accuracy']
+)
+
+# Entrenar nuevamente por unas cuantas épocas
+historial_refinamiento = modelo_transfer.fit(
+    train_generator,
+    epochs=5, 
+    steps_per_epoch=len(train_generator)
+)
