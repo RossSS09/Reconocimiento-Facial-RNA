@@ -33,3 +33,28 @@ modelo_base = Sequential([
 ])
 
 modelo_base.summary()
+
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Flatten
+
+# Construir un nuevo modelo con las capas convolucionales del modelo base (quitando las densas)
+modelo_transfer = Sequential()
+
+# Extraemos las primeras 6 capas del modelo_base (las Conv2D y MaxPooling2D)
+for capa in modelo_base.layers[:6]:
+    modelo_transfer.add(capa)
+
+# Congelar los pesos de la parte pre-entrenada para no arruinarlos con el gradiente inicial
+for capa in modelo_transfer.layers:
+    capa.trainable = False
+
+# Aumentar un clasificador apropiado para distinguir sólo el rostro
+modelo_transfer.add(Flatten())
+modelo_transfer.add(Dense(128, activation='relu')) # Capa densa oculta 
+modelo_transfer.add(Dense(1, activation='sigmoid')) # Una sola neurona de salida (clasificación binaria)
+
+modelo_transfer.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+# Verificar la arquitectura final y comprobar que los parámetros pre-entrenados no son entrenables (Non-trainable params)
+modelo_transfer.summary()
